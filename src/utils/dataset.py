@@ -22,8 +22,16 @@ class DBpediaDataset(Dataset):
 
     def __getitem__(self, idx):
         label, text = self.samples[idx]
+        if 1 <= label <= 14:
+            label0 = label - 1
+        elif 0 <= label <= 13:
+            label0 = label
+        else:
+            raise ValueError(
+                f"Invalid label {label} at index {idx}: expected 0..13 or 1..14"
+            )
+
         tokens = self.tokenizer(text.lower())
         token_ids = self.vocab(tokens)
         token_ids = token_ids[: self.max_len]
-        # convert label from 1..14 to 0..13 for PyTorch CrossEntropy
-        return torch.tensor(token_ids, dtype=torch.long), torch.tensor(label - 1, dtype=torch.long)
+        return torch.tensor(token_ids, dtype=torch.long), torch.tensor(label0, dtype=torch.long)
