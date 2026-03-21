@@ -10,7 +10,25 @@ from torchtext.data.utils import get_tokenizer
 from models.rnn import RNNClassifier
 from models.transformer import TransformerClassifier
 from utils.helpers import load_checkpoint
-from utils.preprocessing import build_vocab, read_dbpedia_csv
+from utils.preprocessing import FixedVocab
+
+
+def load_config(path: str):
+    ext = os.path.splitext(path)[1].lower()
+    if ext not in [".yaml", ".yml"]:
+        raise ValueError("Config file must be .yaml or .yml")
+
+    try:
+        import yaml
+    except ImportError as exc:
+        raise ImportError("PyYAML is required to read YAML config files (pip install pyyaml)") from exc
+
+    with open(path, encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+
+    if not isinstance(cfg, dict):
+        raise ValueError("Config must contain a YAML mapping")
+    return cfg
 
 
 def read_text_file(path: str) -> List[str]:
@@ -50,21 +68,11 @@ def tokenize_and_pad(
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Run inference with a trained model")
-    parser.add_argument("--model", choices=["transformer", "rnn"], required=True)
-    parser.add_argument("--checkpoint", required=True, help="Path to model checkpoint (.pth)")
-
-    parser.add_argument("--train_csv", required=False, default="data/train.csv", help="Path to train CSV to build vocab (optional if checkpoint has vocab_stoi)")
-    parser.add_argument("--max_vocab", type=int, default=50000, help="Only used if vocab is not saved inside checkpoint")
-    parser.add_argument("--max_len", type=int, default=128)
-
+    parser.add_argument("--config_file", default="config.yml", help="Path to YAML config file")
+    parser.add_argument("--checkpoint", default=None, help="Override checkpoint path from config")
     parser.add_argument("--input_text", type=str, help="Single text to classify")
     parser.add_argument("--input_file", type=str, help="File with one text per line")
-
-    parser.add_argument("--embed_dim", type=int, default=128)
-    parser.add_argument("--num_heads", type=int, default=4)
-    parser.add_argument("--hidden_dim", type=int, default=256)
-    parser.add_argument("--num_layers", type=int, default=2)
-
+    parser.add_argument("--max_len", type=int, default=None, help="Optional override max len")
     return parser.parse_args()
 
 
@@ -76,22 +84,25 @@ def main():
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    # load model + vocab from checkpoint (vocab is stored in checkpoint)
-    checkpoint = load_checkpoint(None, None, args.checkpoint, device)
+    config = load_config(args.config_file)
+
+    model_type = config.get("model")
+    if model_type not in ["transformer", "rnn"]:
+        raise ValueError("model must be 'transformer' or 'rnn' in config")
+
+    checkpoint_path = args.checkpoint or config.get("checkpoint")
+    if not checkpoint_path:
+        raise ValueError("checkpoint path must be set in --checkpoint or config")
+
+    max_len = args.max_len if args.max_len is not None else config.get("max_len", 128)
+
+    checkpoint = load_checkpoint(None, None, checkpoint_path, device)
     vocab_stoi = checkpoint.get("vocab_stoi")
-
     if vocab_stoi is None:
-        if args.train_csv is None:
-            raise ValueError("--train_csv is required when checkpoint does not include vocab_stoi")
-        # fallback: rebuild vocab from training data (requires matching max_vocab)
-        train_samples = read_dbpedia_csv(args.train_csv)
-        tokenizer = get_tokenizer("basic_english")
-        vocab = build_vocab(train_samples, tokenizer, max_size=args.max_vocab)
-    else:
-        from utils.preprocessing import FixedVocab
+        raise ValueError("Checkpoint must include vocab_stoi for inference")
 
-        vocab = FixedVocab(vocab_stoi)
-        tokenizer = get_tokenizer("basic_english")
+    vocab = FixedVocab(vocab_stoi)
+    tokenizer = get_tokenizer("basic_english")
 
     # build model
     if args.model == "transformer":
@@ -101,7 +112,7 @@ def main():
             num_heads=args.num_heads,
             hidden_dim=args.hidden_dim,
             num_layers=args.num_layers,
-            num_classes=15,
+            num_classes=14,
             max_len=args.max_len,
             pad_index=vocab["<pad>"],
         )
@@ -111,7 +122,7 @@ def main():
             embed_dim=args.embed_dim,
             hidden_dim=args.hidden_dim,
             num_layers=args.num_layers,
-            num_classes=15,
+            num_classes=14,
             pad_index=vocab["<pad>"],
         )
 
@@ -124,7 +135,7 @@ def main():
     else:
         texts = read_text_file(args.input_file)
 
-    seqs, mask = tokenize_and_pad(texts, tokenizer, vocab, args.max_len, pad_index=vocab["<pad>"], device=device)
+    seqs, mask = tokenize_and_pad(texts, tokenizer, vocab, max_len, pad_index=vocab["<pad>"], device=device)
 
     with torch.no_grad():
         logits = model(seqs, mask)
