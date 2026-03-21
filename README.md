@@ -1,4 +1,4 @@
-# db_text_class (PyTorch text classification)
+# text-classification (PyTorch text classification)
 
 A small PyTorch project for training/benchmarking text classifiers on DBpedia.
 
@@ -23,7 +23,7 @@ A small PyTorch project for training/benchmarking text classifiers on DBpedia.
 ### Install dependencies (Windows)
 
 ```powershell
-cd db_text_class
+cd text-classification
 py -3.11 -m venv .venv
 .\.venv\Scripts\activate
 python -m pip install --upgrade pip
@@ -49,7 +49,7 @@ Example:
 
 ## 🚀 Train (Quick Start)
 
-Run from repo root (inside `db_text_class/`):
+Run from repo root (inside `text-classification/`):
 
 ```powershell
 python -m src.train --model transformer
