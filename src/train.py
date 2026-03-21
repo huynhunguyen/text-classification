@@ -256,7 +256,14 @@ def main():
             epoch_acc += accuracy(logits, labels) * token_ids.size(0)
 
             if batch_idx % 50 == 0:
-                print(f"  epoch {epoch}: batch {batch_idx}/{len(train_loader)}")
+                print(
+                    f"  epoch {epoch}: batch {batch_idx}/{len(train_loader)}",
+                    end="\r",
+                    flush=True,
+                )
+
+        # clear one line at end of epoch
+        print()
 
         epoch_loss /= len(train_dataset)
         epoch_acc /= len(train_dataset)
