@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import re
 import time
@@ -27,80 +28,71 @@ except ImportError:
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train PyTorch text classifier on DBpedia")
-    parser.add_argument("--model", choices=["transformer", "rnn"], default="transformer")
     parser.add_argument(
-        "--train_csv",
-        default="data/train.csv",
-        help="Path to DBpedia train CSV (default: data/train.csv)",
-    )
-    parser.add_argument(
-        "--test_csv",
-        default="data/test.csv",
-        help="Path to DBpedia test CSV (default: data/test.csv)",
-    )
-    parser.add_argument("--output_dir", default="models", help="Directory to save models")
-
-    parser.add_argument("--max_len", type=int, default=128)
-    parser.add_argument("--batch_size", type=int, default=128)
-    parser.add_argument("--epochs", type=int, default=5)
-    parser.add_argument(
-        "--max_rows",
-        type=int,
-        default=None,
-        help="If set, read at most this many rows from each CSV (useful for quick sanity runs)",
-    )
-
-    # model hyperparameters (defaults assigned based on chosen model)
-    parser.add_argument(
-        "--embed_dim",
-        type=int,
-        default=None,
-        help="Embedding dimension (default depends on model)",
-    )
-    parser.add_argument(
-        "--num_heads",
-        type=int,
-        default=None,
-        help="Number of attention heads (transformer only)",
-    )
-    parser.add_argument(
-        "--hidden_dim",
-        type=int,
-        default=None,
-        help="Hidden dimension of the model (transformer/RNN)",
-    )
-    parser.add_argument(
-        "--num_layers",
-        type=int,
-        default=None,
-        help="Number of layers in the model (transformer/RNN)",
-    )
-    parser.add_argument(
-        "--dropout",
-        type=float,
-        default=None,
-        help="Dropout probability (transformer/RNN)",
-    )
-
-    parser.add_argument("--lr", type=float, default=2e-4)
-    parser.add_argument("--weight_decay", type=float, default=1e-5)
-    parser.add_argument("--max_vocab", type=int, default=50000)
-
-    parser.add_argument("--seed", type=int, default=42)
-
-    parser.add_argument(
-        "--save_name",
+        "--config_file",
         type=str,
-        default=None,
-        help="Name for the saved checkpoint (default: next sequential number)",
+        default="config.json",
+        help="Path to JSON config file with parameters (default: config.json)",
     )
-    parser.add_argument(
-        "--save_all",
-        action="store_true",
-        help="If set, keep every improving checkpoint (instead of only the best)",
-    )
-
     return parser.parse_args()
+
+
+def load_config(path):
+    with open(path, "r", encoding="utf-8") as f:
+        config = json.load(f)
+    if not isinstance(config, dict):
+        raise ValueError("Config file must contain a JSON object of key-value pairs")
+    return config
+
+
+def build_args_from_config(config):
+    required_global = [
+        "model",
+        "train_csv",
+        "test_csv",
+        "output_dir",
+        "max_len",
+        "batch_size",
+        "epochs",
+        "max_rows",
+        "lr",
+        "weight_decay",
+        "max_vocab",
+        "seed",
+        "save_name",
+        "save_all",
+    ]
+
+    # required model-specific parameters, to be defined in nested config
+    required_model = ["embed_dim", "hidden_dim", "num_layers", "dropout"]
+
+    for key in required_global:
+        if key not in config:
+            raise ValueError(f"Config must include '{key}' at top-level")
+
+    model = config["model"]
+    if model not in ["transformer", "rnn"]:
+        raise ValueError("model must be 'transformer' or 'rnn'")
+
+    model_config = config.get(model)
+    if not isinstance(model_config, dict):
+        raise ValueError(f"Config must include nested '{model}' config with model-specific values")
+
+    for key in required_model:
+        if key not in model_config:
+            raise ValueError(f"Config must include '{model}.{key}'")
+
+    if model == "transformer" and "num_heads" not in model_config:
+        raise ValueError("Config must include 'transformer.num_heads'")
+
+    final_config = {k: config[k] for k in required_global}
+    final_config.update(model_config)
+
+    # keep nested model info for readability but not used in the runner
+    final_config["transformer"] = config.get("transformer", {})
+    final_config["rnn"] = config.get("rnn", {})
+
+    return argparse.Namespace(**final_config)
 
 
 def main():
@@ -108,6 +100,11 @@ def main():
     # 1. Cấu hình (arguments) + chuẩn bị môi trường
 
     args = parse_args()
+    if not args.config_file:
+        raise ValueError("--config_file is required")
+    config = load_config(args.config_file)
+    args = build_args_from_config(config)
+
     device = "cuda" if torch.cuda.is_available() else "cpu"
     torch.manual_seed(args.seed)
 
@@ -122,30 +119,6 @@ def main():
 
     tokenizer = get_tokenizer("basic_english")
     vocab = build_vocab(train_samples, tokenizer, max_size=args.max_vocab)
-
-    # set model-specific defaults if user didn’t pass them
-    transformer_defaults = {
-        "embed_dim": 128,
-        "num_heads": 4,
-        "hidden_dim": 256,
-        "num_layers": 2,
-        "dropout": 0.1,
-    }
-    rnn_defaults = {
-        "embed_dim": 128,
-        "hidden_dim": 256,
-        "num_layers": 2,
-        "dropout": 0.1,
-    }
-    defaults = transformer_defaults if args.model == "transformer" else rnn_defaults
-
-    embed_dim = args.embed_dim if args.embed_dim is not None else defaults["embed_dim"]
-    hidden_dim = args.hidden_dim if args.hidden_dim is not None else defaults["hidden_dim"]
-    num_layers = args.num_layers if args.num_layers is not None else defaults["num_layers"]
-    dropout = args.dropout if args.dropout is not None else defaults["dropout"]
-
-    # transformer-only defaults
-    num_heads = args.num_heads if args.num_heads is not None else transformer_defaults["num_heads"]
 
     # Split test into val + test (10% val)
     test_samples, val_samples, val_size, test_size = split_dataset(test_samples, val_ratio=0.1)
@@ -206,24 +179,24 @@ def main():
     if args.model == "transformer":
         model = TransformerClassifier(
             vocab_size=len(vocab),
-            embed_dim=embed_dim,
-            num_heads=num_heads,
-            hidden_dim=hidden_dim,
-            num_layers=num_layers,
+            embed_dim=args.embed_dim,
+            num_heads=args.num_heads,
+            hidden_dim=args.hidden_dim,
+            num_layers=args.num_layers,
             num_classes=14,
             max_len=args.max_len,
             pad_index=vocab["<pad>"],
-            dropout=dropout,
+            dropout=args.dropout,
         )
     else:
         model = RNNClassifier(
             vocab_size=len(vocab),
-            embed_dim=embed_dim,
-            hidden_dim=hidden_dim,
-            num_layers=num_layers,
+            embed_dim=args.embed_dim,
+            hidden_dim=args.hidden_dim,
+            num_layers=args.num_layers,
             num_classes=14,
             pad_index=vocab["<pad>"],
-            dropout=dropout,
+            dropout=args.dropout,
         )
 
     model = model.to(device)
@@ -238,19 +211,12 @@ def main():
     model_output_dir = os.path.join(args.output_dir, args.model)
     os.makedirs(model_output_dir, exist_ok=True)
 
-    # Determine base checkpoint name
+    # Determine base checkpoint name (include model prefix + timestamp)
     if args.save_name:
         base_name = args.save_name
     else:
-        # Find existing numbered checkpoints and pick next index
-        existing = [f for f in os.listdir(model_output_dir) if f.endswith(".pth")]
-        nums = []
-        for f in existing:
-            m = re.match(r"^(\d+)", f)
-            if m:
-                nums.append(int(m.group(1)))
-        next_id = max(nums) + 1 if nums else 1
-        base_name = f"{next_id:03d}"
+        current_time = time.strftime("%Y%m%d_%H%M%S")
+        base_name = f"{args.model}_{current_time}"
 
     best_model_path = os.path.join(model_output_dir, f"{base_name}.pth")
 

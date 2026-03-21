@@ -52,13 +52,39 @@ Example:
 Run from repo root (inside `text-classification/`):
 
 ```powershell
-python -m src.train --model transformer
+python -m src.train --config_file config.json
+```
+
+### Model-specific config in `config.json`
+
+In `config.json`, set common options at top level and model-specific options under `transformer` / `rnn`:
+
+```json
+{
+  "model": "transformer",
+  "batch_size": 128,
+  "epochs": 5,
+  "transformer": {
+    "embed_dim": 128,
+    "num_heads": 4,
+    "hidden_dim": 256,
+    "num_layers": 2,
+    "dropout": 0.1
+  },
+  "rnn": {
+    "embed_dim": 128,
+    "hidden_dim": 256,
+    "num_layers": 2,
+    "dropout": 0.1
+  }
+}
 ```
 
 ### Train RNN model
 
 ```powershell
-python -m src.train --model rnn
+# change model in config.json to "rnn" then run
+python -m src.train --config_file config.json
 ```
 
 ### Common options (CLI)
