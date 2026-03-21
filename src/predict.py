@@ -1,15 +1,16 @@
 import argparse
 import os
+import sys
 from typing import List, Optional
 
 import torch
 
 from torchtext.data.utils import get_tokenizer
 
-from src.models.rnn import RNNClassifier
-from src.models.transformer import TransformerClassifier
-from src.utils.helpers import load_checkpoint
-from src.utils.preprocessing import build_vocab, read_dbpedia_csv
+from models.rnn import RNNClassifier
+from models.transformer import TransformerClassifier
+from utils.helpers import load_checkpoint
+from utils.preprocessing import build_vocab, read_dbpedia_csv
 
 
 def read_text_file(path: str) -> List[str]:
@@ -52,7 +53,7 @@ def parse_args():
     parser.add_argument("--model", choices=["transformer", "rnn"], required=True)
     parser.add_argument("--checkpoint", required=True, help="Path to model checkpoint (.pth)")
 
-    parser.add_argument("--train_csv", required=True, help="Path to train CSV to build vocab")
+    parser.add_argument("--train_csv", required=False, default="data/train.csv", help="Path to train CSV to build vocab (optional if checkpoint has vocab_stoi)")
     parser.add_argument("--max_vocab", type=int, default=50000, help="Only used if vocab is not saved inside checkpoint")
     parser.add_argument("--max_len", type=int, default=128)
 
@@ -80,12 +81,14 @@ def main():
     vocab_stoi = checkpoint.get("vocab_stoi")
 
     if vocab_stoi is None:
+        if args.train_csv is None:
+            raise ValueError("--train_csv is required when checkpoint does not include vocab_stoi")
         # fallback: rebuild vocab from training data (requires matching max_vocab)
         train_samples = read_dbpedia_csv(args.train_csv)
         tokenizer = get_tokenizer("basic_english")
         vocab = build_vocab(train_samples, tokenizer, max_size=args.max_vocab)
     else:
-        from src.utils.preprocessing import FixedVocab
+        from utils.preprocessing import FixedVocab
 
         vocab = FixedVocab(vocab_stoi)
         tokenizer = get_tokenizer("basic_english")
@@ -128,7 +131,7 @@ def main():
         preds = torch.argmax(logits, dim=-1).cpu().tolist()
 
     for text, pred in zip(texts, preds):
-        print(pred, "\t", text)
+        print(pred + 1, "\t", text)  # convert 0-based to 1-based label for DBpedia
 
 
 if __name__ == "__main__":

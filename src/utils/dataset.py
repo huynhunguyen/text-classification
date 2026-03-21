@@ -25,4 +25,5 @@ class DBpediaDataset(Dataset):
         tokens = self.tokenizer(text.lower())
         token_ids = self.vocab(tokens)
         token_ids = token_ids[: self.max_len]
-        return torch.tensor(token_ids, dtype=torch.long), torch.tensor(label, dtype=torch.long)
+        # convert label from 1..14 to 0..13 for PyTorch CrossEntropy
+        return torch.tensor(token_ids, dtype=torch.long), torch.tensor(label - 1, dtype=torch.long)

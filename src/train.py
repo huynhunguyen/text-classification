@@ -210,7 +210,7 @@ def main():
             num_heads=num_heads,
             hidden_dim=hidden_dim,
             num_layers=num_layers,
-            num_classes=15,
+            num_classes=14,
             max_len=args.max_len,
             pad_index=vocab["<pad>"],
             dropout=dropout,
@@ -221,7 +221,7 @@ def main():
             embed_dim=embed_dim,
             hidden_dim=hidden_dim,
             num_layers=num_layers,
-            num_classes=15,
+            num_classes=14,
             pad_index=vocab["<pad>"],
             dropout=dropout,
         )
