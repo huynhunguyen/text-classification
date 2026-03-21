@@ -105,29 +105,38 @@ def main():
     tokenizer = get_tokenizer("basic_english")
 
     # build model
-    if args.model == "transformer":
+    model_config = config.get(model_type, {})
+    embed_dim = model_config.get("embed_dim") or config.get("embed_dim")
+    hidden_dim = model_config.get("hidden_dim") or config.get("hidden_dim")
+    num_layers = model_config.get("num_layers") or config.get("num_layers")
+    dropout = model_config.get("dropout") or config.get("dropout", 0.0)
+
+    if model_type == "transformer":
+        num_heads = model_config.get("num_heads") or config.get("num_heads")
         model = TransformerClassifier(
             vocab_size=len(vocab),
-            embed_dim=args.embed_dim,
-            num_heads=args.num_heads,
-            hidden_dim=args.hidden_dim,
-            num_layers=args.num_layers,
-            num_classes=14,
-            max_len=args.max_len,
+            embed_dim=embed_dim,
+            num_heads=num_heads,
+            hidden_dim=hidden_dim,
+            num_layers=num_layers,
+            num_classes=config.get("num_classes", 14),
+            max_len=max_len,
             pad_index=vocab["<pad>"],
+            dropout=dropout,
         )
     else:
         model = RNNClassifier(
             vocab_size=len(vocab),
-            embed_dim=args.embed_dim,
-            hidden_dim=args.hidden_dim,
-            num_layers=args.num_layers,
-            num_classes=14,
+            embed_dim=embed_dim,
+            hidden_dim=hidden_dim,
+            num_layers=num_layers,
+            num_classes=config.get("num_classes", 14),
             pad_index=vocab["<pad>"],
+            dropout=dropout,
         )
 
     model.to(device)
-    load_checkpoint(model, None, args.checkpoint, device)
+    load_checkpoint(model, None, checkpoint_path, device)
     model.eval()
 
     if args.input_text is not None:
