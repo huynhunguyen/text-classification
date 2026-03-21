@@ -44,6 +44,7 @@ def read_dbpedia_csv(
                 break
             if len(row) < 3:
                 continue
+            if row[0] == "label": continue
             label = int(row[0])
             text = row[2]
             rows.append((label, text))
