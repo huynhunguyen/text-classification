@@ -38,10 +38,22 @@ def parse_args():
 
 
 def load_config(path):
+    ext = os.path.splitext(path)[1].lower()
+    if ext not in [".yaml", ".yml"]:
+        raise ValueError("Config file must be .yaml or .yml")
+
     with open(path, "r", encoding="utf-8") as f:
-        config = json.load(f)
+        try:
+            import yaml
+        except ImportError as exc:
+            raise ImportError(
+                "PyYAML is required to read YAML config files. "
+                "Install it with `pip install pyyaml`."
+            ) from exc
+        config = yaml.safe_load(f)
+
     if not isinstance(config, dict):
-        raise ValueError("Config file must contain a JSON object of key-value pairs")
+        raise ValueError("Config file must contain an object/dictionary")
     return config
 
 

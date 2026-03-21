@@ -1,0 +1,27 @@
+model: transformer # options: transformer, rnn
+train_csv: data/train.csv
+test_csv: data/test.csv
+output_dir: models
+max_len: 128
+batch_size: 128
+epochs: 5
+max_rows: null
+lr: 0.0002
+weight_decay: 0.00001
+max_vocab: 50000
+seed: 42
+save_name: null
+save_all: false
+
+transformer:
+  embed_dim: 128
+  num_heads: 4
+  hidden_dim: 256
+  num_layers: 2
+  dropout: 0.1
+
+rnn:
+  embed_dim: 128
+  hidden_dim: 256
+  num_layers: 2
+  dropout: 0.1

@@ -52,12 +52,13 @@ Example:
 Run from repo root (inside `text-classification/`):
 
 ```powershell
-python -m src.train --config_file config.json
+python -m src.train --config_file config.yml
 ```
 
-### Model-specific config in `config.json`
+### Model-specific config (JSON or YAML)
 
-In `config.json`, set common options at top level and model-specific options under `transformer` / `rnn`:
+`src/train.py` supports both JSON and YAML input.  
+Set common options at top level and model-specific options under `transformer` / `rnn`:
 
 ```json
 {
