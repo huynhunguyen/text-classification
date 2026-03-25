@@ -7,10 +7,16 @@ import torch
 
 from torchtext.data.utils import get_tokenizer
 
-from models.rnn import RNNClassifier
-from models.transformer import TransformerClassifier
-from utils.helpers import load_checkpoint
-from utils.preprocessing import FixedVocab
+try:
+    from src.models.rnn import RNNClassifier
+    from src.models.transformer import TransformerClassifier
+    from src.utils.helpers import load_checkpoint
+    from src.utils.preprocessing import FixedVocab
+except ModuleNotFoundError:
+    from models.rnn import RNNClassifier
+    from models.transformer import TransformerClassifier
+    from utils.helpers import load_checkpoint
+    from utils.preprocessing import FixedVocab
 
 
 def load_config(path: str):
@@ -151,7 +157,7 @@ def main():
         preds = torch.argmax(logits, dim=-1).cpu().tolist()
 
     for text, pred in zip(texts, preds):
-        print(pred + 1, "\t", text)  # convert 0-based to 1-based label for DBpedia
+        print(pred, "\t", text)  # Using 0-based label matching data/classes.txt
 
 
 if __name__ == "__main__":
