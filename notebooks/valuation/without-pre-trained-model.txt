@@ -1,0 +1,9 @@
+RNN:
+Epoch 5/5 | train_loss=0.0258 | train_acc=0.9928 | val_acc=0.9869 | time=245.8s
+Best val accuracy: 0.9869
+Test accuracy: 0.9867
+
+Transformer:
+Epoch 5/5 | train_loss=0.0594 | train_acc=0.9829 | val_acc=0.9824 | time=165.3s
+Best val accuracy: 0.9824
+Test accuracy: 0.9830

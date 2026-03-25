@@ -1,0 +1,31 @@
+--- LỊCH SỬ HUẤN LUYỆN ---
+Epoch 1/10 | Thời gian: 193.7s | Train Loss: 0.1033 | Val Loss: 0.0500 | Val Acc: 0.9851 🌟 [Đã lưu Best Model]
+Epoch 2/10 | Thời gian: 199.3s | Train Loss: 0.0443 | Val Loss: 0.0418 | Val Acc: 0.9889 🌟 [Đã lưu Best Model]
+Epoch 3/10 | Thời gian: 199.4s | Train Loss: 0.0358 | Val Loss: 0.0394 | Val Acc: 0.9884 🌟 [Đã lưu Best Model]
+Epoch 4/10 | Thời gian: 199.9s | Train Loss: 0.0303 | Val Loss: 0.0369 | Val Acc: 0.9891 🌟 [Đã lưu Best Model]
+Epoch 5/10 | Thời gian: 201.6s | Train Loss: 0.0260 | Val Loss: 0.0391 | Val Acc: 0.9884 ⚠️ [Cảnh báo: Val Loss không giảm 1/2]
+Epoch 6/10 | Thời gian: 200.5s | Train Loss: 0.0222 | Val Loss: 0.0400 | Val Acc: 0.9897 ⚠️ [Cảnh báo: Val Loss không giảm 2/2]
+
+🛑 KÍCH HOẠT EARLY STOPPING: Dừng huấn luyện sớm để chống Overfitting!
+
+BÁO CÁO PHÂN LOẠI CHI TIẾT (CLASSIFICATION REPORT):
+              precision    recall  f1-score   support
+
+           0       0.96      0.97      0.97      4489
+           1       0.98      0.99      0.99      4509
+           2       0.98      0.99      0.98      4519
+           3       1.00      0.99      1.00      4503
+           4       0.99      0.99      0.99      4510
+           5       0.99      0.99      0.99      4521
+           6       0.98      0.98      0.98      4485
+           7       1.00      0.99      0.99      4491
+           8       1.00      1.00      1.00      4468
+           9       1.00      1.00      1.00      4470
+          10       1.00      1.00      1.00      4489
+          11       1.00      0.99      1.00      4528
+          12       0.99      0.99      0.99      4496
+          13       0.99      0.99      0.99      4522
+
+    accuracy                           0.99     63000
+   macro avg       0.99      0.99      0.99     63000
+weighted avg       0.99      0.99      0.99     63000

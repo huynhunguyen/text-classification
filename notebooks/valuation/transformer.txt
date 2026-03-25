@@ -1,0 +1,33 @@
+--- LỊCH SỬ HUẤN LUYỆN ---
+Epoch 1/10 | Thời gian: 6038.4s | Train Loss: 0.0467 | Val Loss: 0.0247 | Val Acc: 0.9930 🌟 [Đã lưu Best Model]
+Epoch 2/10 | Thời gian: 6047.4s | Train Loss: 0.0228 | Val Loss: 0.0363 | Val Acc: 0.9917 ⚠️ [Cảnh báo: Val Loss không giảm 1/2]
+Epoch 3/10 | Thời gian: 6046.6s | Train Loss: 0.0156 | Val Loss: 0.0300 | Val Acc: 0.9929 ⚠️ [Cảnh báo: Val Loss không giảm 2/2]
+
+🛑 KÍCH HOẠT EARLY STOPPING: Dừng huấn luyện sớm để chống Overfitting!
+
+==================================================
+Đang tải lại trọng số Transformer tốt nhất để kiểm thử trên tập Test...
+
+BÁO CÁO PHÂN LOẠI CHI TIẾT TRÊN TẬP TEST:
+
+                precision  recall     f1-score   support
+
+0               0.9683     0.9782     0.9732      4489
+1               0.9865     0.9903     0.9884      4509
+2               0.9712     0.9861     0.9786      4519
+3               0.9978     0.9980     0.9979      4503
+4               0.9865     0.9907     0.9886      4510
+5               0.9982     0.9894     0.9938      4521
+6               0.9818     0.9875     0.9846      4485
+7               0.9982     0.9942     0.9962      4491
+8               0.9973     0.9996     0.9984      4468
+9               0.9973     0.9987     0.9980      4470
+10              0.9971     0.9958     0.9964      4489
+11              0.9984     0.9938     0.9961      4528
+12              0.9978     0.9960     0.9969      4496
+13              0.9949     0.9914     0.9931      4522
+
+accuracy                              0.9915     63000
+
+macro avg       0.9920     0.9915     0.9917     63000
+weighted avg    0.9920     0.9915     0.9917     63000

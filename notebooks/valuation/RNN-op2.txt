@@ -1,0 +1,40 @@
+--- LỊCH SỬ HUẤN LUYỆN ---
+Epoch 1/20 | Thời gian: 176.2s | Train Loss: 0.1148 | Val Loss: 0.0570 | Val Acc: 0.9824 🌟 [Đã lưu Best Model]
+Epoch 2/20 | Thời gian: 178.5s | Train Loss: 0.0551 | Val Loss: 0.0485 | Val Acc: 0.9870 🌟 [Đã lưu Best Model]
+Epoch 3/20 | Thời gian: 178.7s | Train Loss: 0.0465 | Val Loss: 0.0443 | Val Acc: 0.9866 🌟 [Đã lưu Best Model]
+Epoch 4/20 | Thời gian: 178.7s | Train Loss: 0.0412 | Val Loss: 0.0405 | Val Acc: 0.9881 🌟 [Đã lưu Best Model]
+Epoch 5/20 | Thời gian: 178.8s | Train Loss: 0.0377 | Val Loss: 0.0398 | Val Acc: 0.9881 🌟 [Đã lưu Best Model]
+Epoch 6/20 | Thời gian: 178.7s | Train Loss: 0.0346 | Val Loss: 0.0423 | Val Acc: 0.9874 ⚠️ [Cảnh báo: Val Loss không giảm 1/2]
+Epoch 7/20 | Thời gian: 178.8s | Train Loss: 0.0316 | Val Loss: 0.0388 | Val Acc: 0.9884 🌟 [Đã lưu Best Model]
+Epoch 8/20 | Thời gian: 178.7s | Train Loss: 0.0293 | Val Loss: 0.0370 | Val Acc: 0.9890 🌟 [Đã lưu Best Model]
+Epoch 9/20 | Thời gian: 178.7s | Train Loss: 0.0271 | Val Loss: 0.0377 | Val Acc: 0.9896 ⚠️ [Cảnh báo: Val Loss không giảm 1/2]
+Epoch 10/20 | Thời gian: 178.8s | Train Loss: 0.0248 | Val Loss: 0.0366 | Val Acc: 0.9896 🌟 [Đã lưu Best Model]
+Epoch 11/20 | Thời gian: 178.7s | Train Loss: 0.0226 | Val Loss: 0.0372 | Val Acc: 0.9894 ⚠️ [Cảnh báo: Val Loss không giảm 1/2]
+Epoch 12/20 | Thời gian: 178.6s | Train Loss: 0.0203 | Val Loss: 0.0384 | Val Acc: 0.9894 ⚠️ [Cảnh báo: Val Loss không giảm 2/2]
+
+🛑 KÍCH HOẠT EARLY STOPPING: Dừng huấn luyện sớm để chống Overfitting!
+
+==================================================
+Đang tải lại trọng số mô hình tốt nhất để kiểm thử trên tập Test...
+
+BÁO CÁO PHÂN LOẠI CHI TIẾT (CLASSIFICATION REPORT):
+              precision    recall  f1-score   support
+
+           0     0.9689    0.9704    0.9696      4489
+           1     0.9817    0.9889    0.9853      4509
+           2     0.9792    0.9883    0.9837      4519
+           3     0.9971    0.9949    0.9960      4503
+           4     0.9893    0.9847    0.9870      4510
+           5     0.9938    0.9934    0.9936      4521
+           6     0.9864    0.9739    0.9801      4485
+           7     0.9920    0.9971    0.9946      4491
+           8     0.9978    0.9987    0.9982      4468
+           9     0.9962    0.9971    0.9966      4470
+          10     0.9969    0.9947    0.9958      4489
+          11     0.9938    0.9945    0.9941      4528
+          12     0.9935    0.9911    0.9923      4496
+          13     0.9894    0.9883    0.9888      4522
+
+    accuracy                         0.9897     63000
+   macro avg     0.9897    0.9897    0.9897     63000
+weighted avg     0.9897    0.9897    0.9897     63000
