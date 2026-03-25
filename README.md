@@ -55,71 +55,54 @@ Run from repo root (inside `text-classification/`):
 python -m src.train --config_file config.yml
 ```
 
-### Model-specific config (JSON or YAML)
+### Model-specific config (YAML)
 
-`src/train.py` supports both JSON and YAML input.  
+`src/train.py` reads YAML config (the script loads `yaml.safe_load`).
 Set common options at top level and model-specific options under `transformer` / `rnn`:
 
-```json
-{
-  "model": "transformer",
-  "batch_size": 128,
-  "epochs": 5,
-  "transformer": {
-    "embed_dim": 128,
-    "num_heads": 4,
-    "hidden_dim": 256,
-    "num_layers": 2,
-    "dropout": 0.1
-  },
-  "rnn": {
-    "embed_dim": 128,
-    "hidden_dim": 256,
-    "num_layers": 2,
-    "dropout": 0.1
-  }
-}
+```yaml
+model: transformer  # options: transformer, rnn
+train_csv: data/train.csv
+test_csv: data/test.csv
+output_dir: models
+max_len: 128
+batch_size: 128
+epochs: 5
+max_rows: null
+lr: 0.0002
+weight_decay: 0.00001
+max_vocab: 50000
+seed: 42
+save_name: null
+save_all: false
+
+transformer:
+  embed_dim: 128
+  num_heads: 4
+  hidden_dim: 256
+  num_layers: 2
+  dropout: 0.1
+
+rnn:
+  embed_dim: 128
+  hidden_dim: 256
+  num_layers: 2
+  dropout: 0.1
 ```
+
 
 ### Train RNN model
 
 ```powershell
-# change model in config.json to "rnn" then run
-python -m src.train --config_file config.json
+python -m src.train --config_file config.yml
 ```
 
-### CLI options (train)
-
-`src/train.py` currently supports only one CLI argument:
+`train.py` currently supports only one CLI argument:
 
 - `--config_file`: path to a YAML config file (default `config.yml`)
 
-All other training parameters are read from the config YAML. Sample `config.yml` values in this repo are:
+All other training parameters are read from the config YAML
 
-- `model: transformer` (or `rnn`)
-- `train_csv: data/train.csv`
-- `test_csv: data/test.csv`
-- `output_dir: models`
-- `max_len: 128`
-- `batch_size: 128`
-- `epochs: 5`
-- `max_rows: null` (no limit)
-- `lr: 2e-4`
-- `weight_decay: 1e-5`
-- `max_vocab: 50000`
-- `seed: 42`
-- `save_name: null` (auto timestamp naming)
-- `save_all: false`
-
-Model-specific nested config section for `transformer`/`rnn`:
-
-- `embed_dim: 128`
-- `hidden_dim: 256`
-- `num_layers: 2`
-- `dropout: 0.1`
-- transformer only: `num_heads: 4`
-
----
 
 ## 🖥️ Streamlit UI (Simple inference)
 
